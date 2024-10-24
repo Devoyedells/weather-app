@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="./weather.css">
+</head>
+<body>
+    <h1>Weather Forecast</h1>
+    
+    <form id="weatherForm">
+        <input type="text" id="location" placeholder="Enter a city" required>
+        <button type="submit">Get Forecast</button>
+    </form>
+    
+    <div id="myScreen"></div>
+
+    <script>
+        const apiKey = '3abc4f1ce8443c044b32b9c07d486fc5'; 
+
+        async function weatherForecast(city) {
+            try {
+                let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+                let response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('City not found');
+                }
+                
+                let data = await response.json();
+                displayWeather(data);
+            } catch (error) {
+                console.error("Error fetching the weather data: ", error);
+                document.getElementById('myScreen').innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        }
+
+        function displayWeather(data) {
+            let myScreen = document.getElementById('myScreen');
+            let temperatureInCelsius = Math.round(data.main.temp - 273.15); 
+            myScreen.innerHTML = `
+                <h3>Weather in ${data.name}</h3>
+                <p>Temperature: ${temperatureInCelsius}°C</p>
+                <p>Weather: ${data.weather[0].description}</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+            `;
+        }
+
+        document.getElementById('weatherForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let city = document.getElementById('location').value;
+            weatherForecast(city);
+        });
+    </script>
+</body>
+</html>
